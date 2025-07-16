@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>区块链浏览器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .block {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .block-index {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .block-time {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .block-field {
+            margin-bottom: 10px;
+        }
+        
+        .block-field strong {
+            color: #2c3e50;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .hash {
+            font-family: 'Courier New', monospace;
+            background: #ecf0f1;
+            padding: 5px 8px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 区块链浏览器</h1>
+            <p>实时查看和管理区块链数据</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="blockCount">-</div>
+                    <div class="stat-label">区块总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lastBlockTime">-</div>
+                    <div class="stat-label">最新区块时间</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📦 挖矿新区块</h2>
+                <div class="form-group">
+                    <label for="blockData">区块数据:</label>
+                    <textarea id="blockData" rows="3" placeholder="输入要存储在区块中的数据..."></textarea>
+                </div>
+                <button onclick="mineBlock()">⛏️ 开始挖矿</button>
+            </div>
+            
+            <div class="section">
+                <h2>🔍 区块链浏览</h2>
+                <button onclick="loadBlocks()">🔄 刷新区块链</button>
+                <div id="message"></div>
+                <div id="blocks"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/block-chain';
+        
+        // 页面加载时自动获取区块链数据
+        window.onload = function() {
+            loadBlocks();
+        };
+        
+        // 加载所有区块
+        async function loadBlocks() {
+            showMessage('正在加载区块链数据...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/blocks`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const blocks = await response.json();
+                displayBlocks(blocks);
+                updateStats(blocks);
+                clearMessage();
+            } catch (error) {
+                showMessage(`加载失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 挖矿新区块
+        async function mineBlock() {
+            const data = document.getElementById('blockData').value.trim();
+            if (!data) {
+                showMessage('请输入区块数据', 'error');
+                return;
+            }
+            
+            showMessage('正在挖矿中，请稍候...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/mineBlock`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: data })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const newBlock = await response.json();
+                showMessage(`挖矿成功！新区块哈希: ${newBlock.hash}`, 'success');
+                document.getElementById('blockData').value = '';
+                
+                // 自动刷新区块链
+                setTimeout(loadBlocks, 1000);
+                
+            } catch (error) {
+                showMessage(`挖矿失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 显示区块
+        function displayBlocks(blocks) {
+            const blocksContainer = document.getElementById('blocks');
+            blocksContainer.innerHTML = '';
+            
+            if (blocks.length === 0) {
+                blocksContainer.innerHTML = '<p class="loading">暂无区块数据</p>';
+                return;
+            }
+            
+            // 按索引倒序显示（最新的在前面）
+            blocks.reverse().forEach(block => {
+                const blockElement = createBlockElement(block);
+                blocksContainer.appendChild(blockElement);
+            });
+        }
+        
+        // 创建区块元素
+        function createBlockElement(block) {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'block';
+            
+            const timestamp = new Date(block.timestamp).toLocaleString('zh-CN');
+            
+            blockDiv.innerHTML = `
+                <div class="block-header">
+                    <div class="block-index">区块 #${block.index}</div>
+                    <div class="block-time">${timestamp}</div>
+                </div>
+                <div class="block-field">
+                    <strong>数据:</strong> ${block.data || '无数据'}
+                </div>
+                <div class="block-field">
+                    <strong>哈希:</strong> <span class="hash">${block.hash}</span>
+                </div>
+                <div class="block-field">
+                    <strong>前区块哈希:</strong> <span class="hash">${block.previousHash}</span>
+                </div>
+                <div class="block-field">
+                    <strong>随机数:</strong> ${block.nonce}
+                </div>
+            `;
+            
+            return blockDiv;
+        }
+        
+        // 更新统计信息
+        function updateStats(blocks) {
+            document.getElementById('blockCount').textContent = blocks.length;
+            
+            if (blocks.length > 0) {
+                const lastBlock = blocks[blocks.length - 1];
+                const lastTime = new Date(lastBlock.timestamp).toLocaleTimeString('zh-CN');
+                document.getElementById('lastBlockTime').textContent = lastTime;
+            }
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        // 清除消息
+        function clearMessage() {
+            document.getElementById('message').innerHTML = '';
+        }
+        
+        // 定期自动刷新（每30秒）
+        setInterval(loadBlocks, 30000);
+    </script>
+</body>
+</html>
